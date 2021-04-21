@@ -51,23 +51,38 @@ def indep_classifier(clf):
     return accuracy
 
 
-def lin_mlp_binary():
+def perceptron_binary():
+    """
+    Trains 10 perceptrons (for 10 possible classes) and takes the one that is most confident.
+    This makes weights for each independent
+    """
     single_layer = sklearn.neural_network.MLPRegressor(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(),
                                                        random_state=1, max_iter=10000)
-    print("Binary lin MLP {}".format(indep_classifier(single_layer)))
+    print("Binary lin perceptron {}".format(indep_classifier(single_layer)))
 
 
-def lin_mlp():
+def perceptron():
+    """
+    one perceptron but weights should still be fairly independent as no hidden layer
+    """
     multi_layer = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(), random_state=1, max_iter=10000)
-    print("Lin MLP {}".format(classify(multi_layer)))
+    print("Lin perceptron {}".format(classify(multi_layer)))
+
+
+def mlp_binary():
+    clf = sklearn.neural_network.MLPRegressor(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(100),
+                                              random_state=1, max_iter=10000)
+    print("Binary MLP {}".format(indep_classifier(clf)))
+
+
+def mlp():
+    clf = sklearn.neural_network.MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(100),
+                                               random_state=1, max_iter=10000)
+    print("Non-binary MLP {}".format(classify(clf)))
 
 
 if __name__ == "__main__":
-    lin_mlp_binary()
-    lin_mlp()
-    #
-    # multi_layer = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(100), random_state=1, max_iter=10000)
-    # print(test(multi_layer))
-    #
-    # multi_layer2 = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(10), random_state=1, max_iter=40000)
-    # print(test(multi_layer2))
+    perceptron_binary()
+    perceptron()
+    mlp_binary()
+    mlp()
