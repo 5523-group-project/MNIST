@@ -65,6 +65,10 @@ def transform_image(image: np.ndarray, only_one=True):
 
 def process(directory: str) -> np.ndarray:
     files = get_files(directory)
+    list.sort(files)
+
+    print("processing:", files)
+
     images = [cv2.imread(file, flags=cv2.IMREAD_GRAYSCALE) for file in files]
 
     arr = np.empty((0, IMAGE_SIZE))
