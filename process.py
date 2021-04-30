@@ -15,7 +15,7 @@ def get_files(directory: str):
     return f
 
 
-def transform_image(image: np.ndarray):
+def transform_image(image: np.ndarray, only_one=True):
     # threshold so it is 255 for the writing and 0 for all else
     _, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY_INV)
 
@@ -25,15 +25,26 @@ def transform_image(image: np.ndarray):
 
     bounding_rectangles = [cv2.boundingRect(cnt) for cnt in contours]
 
+    if only_one:
+        # max by width
+        bounding_rectangles = [max(bounding_rectangles, key=lambda x: x[2])]
+
     # sort by x
     list.sort(bounding_rectangles, key=lambda x: x[0])
 
     for bound in bounding_rectangles:
         x, y, w, h = bound
+
+        diff_w_h = h - w
+
+        if diff_w_h > 0:
+            x -= int(diff_w_h / 2)
+            w += diff_w_h
+
         sub_image = image[y:y + h, x:x + w]
 
         # resize
-        sub_image = cv2.resize(sub_image, (8, 8), interpolation=cv2.INTER_CUBIC)
+        sub_image = cv2.resize(sub_image, (8, 8), interpolation=cv2.INTER_AREA)
 
         norm_div = np.max(sub_image) - 0.5
 
@@ -60,5 +71,5 @@ def process(directory: str) -> np.ndarray:
 
     for i, image in enumerate(images):
         for sub_image in transform_image(image):
-            arr = np.append(arr, sub_image.reshape(1,-1), axis=0)
+            arr = np.append(arr, sub_image.reshape(1, -1), axis=0)
     return arr
