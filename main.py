@@ -5,6 +5,8 @@ from sklearn import datasets, metrics
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
+from process import process
+
 
 def classify(clf):
     digits = datasets.load_digits()
@@ -79,10 +81,15 @@ def mlp():
     clf = sklearn.neural_network.MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(100),
                                                random_state=1, max_iter=10000)
     print("Non-binary MLP {}".format(classify(clf)))
+    return clf
 
 
 if __name__ == "__main__":
-    perceptron_binary()
-    perceptron()
-    mlp_binary()
-    mlp()
+    # perceptron_binary()
+    # perceptron()
+    # mlp_binary()
+    mlp = mlp()
+
+    images = process("images")
+    predictions = mlp.predict(images)
+    print("predictions: ", predictions)
