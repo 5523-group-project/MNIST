@@ -16,46 +16,49 @@ def get_files(directory: str):
 
 
 def transform_image(image: np.ndarray):
-
     # threshold so it is 255 for the writing and 0 for all else
     _, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY_INV)
 
     contours, hierarchy = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cnt = contours[0]
-    x, y, w, h = cv2.boundingRect(cnt)
 
-    # max_len = max(w, h)
+    resulting_images = []
 
-    # crop out black edges
-    image = image[y:y+h, x:x+w]
+    bounding_rectangles = [cv2.boundingRect(cnt) for cnt in contours]
 
-    # resize
-    image = cv2.resize(image, (8, 8), interpolation=cv2.INTER_CUBIC)
+    # sort by x
+    list.sort(bounding_rectangles, key=lambda x: x[0])
 
-    norm_div = np.max(image) - 0.5
+    for bound in bounding_rectangles:
+        x, y, w, h = bound
+        sub_image = image[y:y + h, x:x + w]
 
-    mult  = 15 / norm_div
-    image = np.round(image * mult)
+        # resize
+        sub_image = cv2.resize(sub_image, (8, 8), interpolation=cv2.INTER_CUBIC)
 
-    new_max = np.max(image)
-    new_min = np.min(image)
+        norm_div = np.max(sub_image) - 0.5
 
-    image = image.reshape(-1)
-    assert new_max == 15.0
-    assert new_min == 0.0
-    assert image.shape[0] == IMAGE_SIZE
+        mult = 15 / norm_div
+        sub_image = np.round(sub_image * mult)
 
-    return image
+        new_max = np.max(sub_image)
+        new_min = np.min(sub_image)
+
+        sub_image = sub_image.reshape(-1)
+        assert new_max == 15.0
+        assert new_min == 0.0
+        assert sub_image.shape[0] == IMAGE_SIZE
+        resulting_images.append(sub_image)
+
+    return resulting_images
 
 
 def process(directory: str) -> np.ndarray:
     files = get_files(directory)
     images = [cv2.imread(file, flags=cv2.IMREAD_GRAYSCALE) for file in files]
-    image_count = len(images)
 
-    arr = np.empty((image_count, IMAGE_SIZE))
+    arr = np.empty((0, IMAGE_SIZE))
 
     for i, image in enumerate(images):
-        arr[i] = transform_image(image)
-
+        for sub_image in transform_image(image):
+            arr = np.append(arr, sub_image.reshape(1,-1), axis=0)
     return arr
