@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 
-IMAGE_SIZE = 64
+IMAGE_SIZE = 784
 
 
 def get_files(directory: str):
