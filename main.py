@@ -9,16 +9,16 @@ from process import process
 
 
 def classify(clf):
-    digits = datasets.load_digits()
+    digits = datasets.fetch_openml(name= "mnist_784")
     _, axes = plt.subplots(nrows=1, ncols=5, figsize=(10, 3))
-    n_samples = len(digits.images)
-    data = digits.images.reshape((n_samples, -1))
-    X_train, X_test, y_train, y_test = train_test_split(data, digits.target, test_size=0.5, shuffle=False)
+    n_samples = len(digits.data)
+    data = digits.data.reshape((n_samples, -1))
+    X_train, X_test, y_train, y_test = train_test_split(data, digits.target, test_size=0.25, shuffle=False)
 
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
-    # disp = metrics.plot_confusion_matrix(clf, X_test, y_test)
-    # disp.figure_.suptitle("Confusion Matrix for {}".format(name))
+    #disp = metrics.plot_confusion_matrix(clf, X_test, y_test)
+    #disp.figure_.suptitle("Confusion Matrix")
     accuracy = metrics.accuracy_score(y_test, y_pred)
     return accuracy
 
@@ -28,12 +28,15 @@ def indep_classifier(clf):
     for i in range(10):
         sub_classifiers.append(sklearn.base.clone(clf))
 
-    digits = datasets.load_digits()
+    digits = datasets.fetch_openml(name= "mnist_784")
     _, axes = plt.subplots(nrows=1, ncols=5, figsize=(10, 3))
-    n_samples = len(digits.images)
-    data = digits.images.reshape((n_samples, -1))
-    X_train, X_test, y_train, y_test = train_test_split(data, digits.target, test_size=0.5, shuffle=False)
-
+    n_samples = len(digits.data)
+    data = digits.data.reshape((n_samples, -1))
+    X_train, X_test, y_train, y_test = train_test_split(data, digits.target, test_size=0.25, shuffle=False)
+    
+    y_train = y_train.astype(int)
+    y_test = y_test.astype(int)
+    
     for i in range(10):
         y_train_i = np.equal(y_train, i).astype(np.float32)
         clf: MLPClassifier = sub_classifiers[i]
@@ -67,29 +70,30 @@ def perceptron():
     """
     one perceptron but weights should still be fairly independent as no hidden layer
     """
-    multi_layer = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(), random_state=1, max_iter=10000)
+    multi_layer = MLPClassifier(solver='sgd', alpha=1e-5, hidden_layer_sizes=(), random_state=1, max_iter=10000)
     print("Lin perceptron {}".format(classify(multi_layer)))
 
 
 def mlp_binary():
-    clf = sklearn.neural_network.MLPRegressor(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(100),
+    clf = sklearn.neural_network.MLPRegressor(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(350),
                                               random_state=1, max_iter=10000)
     print("Binary MLP {}".format(indep_classifier(clf)))
 
 
 def mlp():
-    clf = sklearn.neural_network.MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(100),
+    clf = sklearn.neural_network.MLPClassifier(solver='sgd', alpha=1e-5, hidden_layer_sizes=(350),
                                                random_state=1, max_iter=10000)
     print("Non-binary MLP {}".format(classify(clf)))
     return clf
 
 
 if __name__ == "__main__":
-    # perceptron_binary()
-    # perceptron()
-    # mlp_binary()
+    perceptron_binary()
+    perceptron()
+    mlp_binary()
     mlp = mlp()
 
     images = process("images")
     predictions = mlp.predict(images)
     print("predictions: ", predictions)
+    
