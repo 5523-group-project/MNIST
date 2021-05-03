@@ -75,7 +75,7 @@ def perceptron():
 
 
 def mlp_binary():
-    clf = sklearn.neural_network.MLPRegressor(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(350),
+    clf = sklearn.neural_network.MLPRegressor(solver='adam', alpha=1e-5, hidden_layer_sizes=(350),
                                               random_state=1, max_iter=10000)
     print("Binary MLP {}".format(indep_classifier(clf)))
 
