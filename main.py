@@ -32,7 +32,7 @@ def indep_classifier(clf):
     _, axes = plt.subplots(nrows=1, ncols=5, figsize=(10, 3))
     n_samples = len(digits.data)
     data = digits.data.reshape((n_samples, -1))
-    X_train, X_test, y_train, y_test = train_test_split(data, digits.target, test_size=0.25, shuffle=False)
+    X_train, X_test, y_train, y_test = train_test_split(data, digits.target, test_size=0.50, shuffle=False)
     
     y_train = y_train.astype(int)
     y_test = y_test.astype(int)
@@ -75,13 +75,13 @@ def perceptron():
 
 
 def mlp_binary():
-    clf = sklearn.neural_network.MLPRegressor(solver='adam', alpha=1e-5, hidden_layer_sizes=(350),
+    clf = sklearn.neural_network.MLPRegressor(solver='adam', alpha=1e-5, hidden_layer_sizes=(500),
                                               random_state=1, max_iter=10000)
     print("Binary MLP {}".format(indep_classifier(clf)))
 
 
 def mlp():
-    clf = sklearn.neural_network.MLPClassifier(solver='sgd', alpha=1e-5, hidden_layer_sizes=(350),
+    clf = sklearn.neural_network.MLPClassifier(solver='adam', alpha=1e-5, hidden_layer_sizes=(500),
                                                random_state=1, max_iter=10000)
     print("Non-binary MLP {}".format(classify(clf)))
     return clf
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     mlp_binary()
     mlp = mlp()
 
-    images = process("images")
-    predictions = mlp.predict(images)
-    print("predictions: ", predictions)
+    #images = process("images")
+    #predictions = mlp.predict(images)
+    #print("predictions: ", predictions)
     
